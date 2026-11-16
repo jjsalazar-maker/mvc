@@ -12,34 +12,6 @@ class retro_items
     private string|null $fecha_revision;
 
     public function __construct(
-<<<<<<< HEAD
-    int $id,
-    int $sprint_id,
-    string $categoria,
-    string $descripcion
-    ){
-    $this->id=$id;
-    $this->sprint_id=$sprint_id;
-    $this->categoria=$categoria;
-    $this->descripcion=$descripcion;
-    }
-
-    public function get_retro_id(){
-        return $this->id;
-    }
-    
-    public function get_sprint_id(){
-        return $this->sprint_id;
-    }
-
-    public function get_categoria(){
-        return $this->categoria;
-    }
-
-    public function get_descripcion(){
-        return $this->descripcion;
-    }
-=======
         int $id,
         int $sprint_id,
         string $categoria,
@@ -56,6 +28,11 @@ class retro_items
     }
 
     public function get_id(): int
+    {
+        return $this->id;
+    }
+
+    public function get_retro_id(): int
     {
         return $this->id;
     }
@@ -84,5 +61,4 @@ class retro_items
     {
         return $this->fecha_revision;
     }
->>>>>>> 0e15ff333abbe8572d8d5fcab6419131c3e2bf31
 }

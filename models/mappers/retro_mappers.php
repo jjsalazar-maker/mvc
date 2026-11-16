@@ -10,9 +10,11 @@ class RetroMappers
     {
         return new retro_items(
             $row_db["id"],
-            $row_db["sprint id"],
-            $row_db["categotia"],
-            $row_db["descripcion"]
+            $row_db["sprint_id"],
+            $row_db["categoria"],
+            $row_db["descripcion"],
+            isset($row_db["cumplida"]) ? (bool)$row_db["cumplida"] : null,
+            $row_db["fecha_revision"] ?? null
         );
     }
 }
