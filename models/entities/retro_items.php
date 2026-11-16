@@ -9,11 +9,32 @@ class retro_items
     private string $descripcion;
 
     public function __construct(
-    
+    int $id,
+    int $sprint_id,
+    string $categoria,
+    string $descripcion
     ){
+    $this->id=$id;
+    $this->sprint_id=$sprint_id;
+    $this->categoria=$categoria;
+    $this->descripcion=$descripcion;
+    }
 
+    public function get_retro_id(){
+        return $this->id;
     }
     
+    public function get_sprint_id(){
+        return $this->sprint_id;
+    }
+
+    public function get_categoria(){
+        return $this->categoria;
+    }
+
+    public function get_descripcion(){
+        return $this->descripcion;
+    }
 }
 
 
