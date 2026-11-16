@@ -9,7 +9,7 @@ class UsersDB implements UsersDBInterface
     private string $host_db = "localhost";
     private string $user_db = "root";
     private string $pwd_db = "";
-    private string $name_db = "usuarios_db";
+    private string $name_db = "registro_retro_db";
     private int $port_db = 3306;
     private $conex = null;
 
@@ -27,11 +27,17 @@ class UsersDB implements UsersDBInterface
     public function query_select(string $sql): array
     {
         $result = $this->conex->query($sql);
-        $rows = [];
-        while ($row = $result->fetch_assoc()) {
-            array_push($rows, $row);
+
+        if ($result === false) {
+            die("Error en SQL: " . $this->conex->error);
         }
-        $this->conex->close();
+
+        $rows = [];
+
+        while ($row = $result->fetch_assoc()) {
+            $rows[] = $row;
+        }
+
         return $rows;
     }
 
