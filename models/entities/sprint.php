@@ -17,7 +17,7 @@ class sprint
         $this->id = $id;
         $this->nombre = $nombre;
         $this->fecha_inicio = $fecha_inicio;
-        $this->fehca_fin = $fecha_fin;
+        $this->fecha_fin = $fecha_fin;
     }
 
     public function get_id() : int 
