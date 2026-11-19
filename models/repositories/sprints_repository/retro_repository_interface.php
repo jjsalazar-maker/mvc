@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models\repositories\users_repository;
+namespace app\models\repositories\sprints_repository;
 
 use app\models\entities\retro_items;
 
