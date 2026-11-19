@@ -1,10 +1,24 @@
 <?php
+require_once "../models/database/registro_db_interface.php";
+require_once "../models/database/registro_db.php";
+require_once "../models/entities/retro_items.php";
+require_once "../models/mappers/retro_mappers.php";
+require_once "../models/repositories/sprints_repository/retro_repository_interface.php";
+require_once "../models/repositories/sprints_repository/retro_repository.php";
+require_once "../models/config/models_config.php";
+require_once "../controllers/mappers/retro_mapper_controller.php";
+require_once "../controllers/retro_items/retro_controller_interface.php";
+require_once "../controllers/retro_items/retro_controller.php";
+require_once "../controllers/config/controllers_config.php";
+
+use app\controllers\config\ControllersConfig;
+
 function e($valor)
 {
     return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
 }
 
-// Mapa de claves internas para base de datos yetiquetas visibles
+// Mapa de claves internas para base de datos y etiquetas visibles
 $categorias = [
     'logro'       => 'Logro',
     'impedimento' => 'Impedimento',
@@ -17,7 +31,7 @@ $id = (int)($_GET['id'] ?? 0);
 $sprint_id = (int)($_GET['sprint_id'] ?? 0);
 $categoria = $_GET['categoria'] ?? 'logro';
 if (!isset($categorias[$categoria])) {
-    $categoria = 'logro';   // Restablece a un valor seguro si la clave no existe en la lista 
+    $categoria = 'logro';
 }
 
 // Configuración inicial para insercion
@@ -32,15 +46,20 @@ if ($id > 0) {
     $titulo = "Editar ítem";
     $action = "operaciones/modificar_item.php";
 
-    // Valores simulados; en producción se reemplazan por la consulta real del registro
-    $sprint_id = 1;
-    $categoria = "accion";
-    $descripcion = "Hacer reuniones diarias de 15 minutos";
-    $cumplida = "";
-    $fecha_revision = "";
+    try {
+        $retroController = ControllersConfig::get_retro_controller();
+        $item = $retroController->get_retro($id);
+        $sprint_id = $item->get_sprint_id();
+        $categoria = $item->get_categoria();
+        $descripcion = $item->get_descripcion();
+        $cumplida = $item->get_cumplida() === null ? "" : ($item->get_cumplida() ? "1" : "0");
+        $fecha_revision = $item->get_fecha_revision() ?? "";
+    } catch (Exception $ex) {
+        header("Location: inicio.php?error=1");
+        exit;
+    }
 }
 
-// Bloquea el acceso y redirige si no hay un sprint asociado válido
 if ($sprint_id <= 0) {
     header("Location: inicio.php?error=1");
     exit;
@@ -94,7 +113,6 @@ $volver = "retrospectiva.php?sprint_id=" . $sprint_id;
                 <label for="categoria">Categoría</label>
                 <select id="categoria" name="categoria" required>
                     <?php foreach ($categorias as $valor => $texto) : ?>
-                        <!-- Marca automáticamente la opción que coincide con la categoría activa -->
                         <option value="<?= e($valor) ?>" <?= $valor === $categoria ? 'selected' : '' ?>>
                             <?= e($texto) ?>
                         </option>

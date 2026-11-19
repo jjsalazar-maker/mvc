@@ -1,4 +1,25 @@
 <?php
+require_once "../models/database/registro_db_interface.php";
+require_once "../models/database/registro_db.php";
+require_once "../models/entities/sprint.php";
+require_once "../models/entities/retro_items.php";
+require_once "../models/mappers/sprint_mappers.php";
+require_once "../models/mappers/retro_mappers.php";
+require_once "../models/repositories/sprints_repository/sprint_repository_interface.php";
+require_once "../models/repositories/sprints_repository/sprint_repository.php";
+require_once "../models/repositories/sprints_repository/retro_repository_interface.php";
+require_once "../models/repositories/sprints_repository/retro_repository.php";
+require_once "../models/config/models_config.php";
+require_once "../controllers/mappers/sprints_mapper_controller.php";
+require_once "../controllers/mappers/retro_mapper_controller.php";
+require_once "../controllers/sprints/sprints_controller_interface.php";
+require_once "../controllers/sprints/sprints_controller.php";
+require_once "../controllers/retro_items/retro_controller_interface.php";
+require_once "../controllers/retro_items/retro_controller.php";
+require_once "../controllers/config/controllers_config.php";
+
+use app\controllers\config\ControllersConfig;
+
 function e($valor)
 {
     return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
@@ -11,24 +32,30 @@ if ($sprint_id <= 0) {
     exit;
 }
 
-// Datos simulados para desarrollo; en producción provendrán de consultas a la base de datos
-$sprint = ['id' => $sprint_id, 'nombre' => 'Sprint ' . $sprint_id];
-$items = [
-    ['id' => 1, 'categoria' => 'logro',       'descripcion' => 'Terminamos el módulo de login a tiempo', 'cumplida' => null, 'fecha_revision' => null],
-    ['id' => 2, 'categoria' => 'logro',       'descripcion' => 'Buena comunicación en el equipo',        'cumplida' => null, 'fecha_revision' => null],
-    ['id' => 3, 'categoria' => 'impedimento', 'descripcion' => 'El servidor de pruebas se cayó dos veces', 'cumplida' => null, 'fecha_revision' => null],
-    ['id' => 4, 'categoria' => 'accion',      'descripcion' => 'Hacer reuniones diarias de 15 minutos',  'cumplida' => true, 'fecha_revision' => '2026-11-14'],
-    ['id' => 5, 'categoria' => 'accion',      'descripcion' => 'Documentar los endpoints',               'cumplida' => null, 'fecha_revision' => null],
-    ['id' => 6, 'categoria' => 'comentario',  'descripcion' => 'Revisar la carga de trabajo del próximo sprint', 'cumplida' => null, 'fecha_revision' => null],
-];
+try {
+    $sprintsController = ControllersConfig::get_sprints_controller();
+    $retroController = ControllersConfig::get_retro_controller();
 
-// Clasifica la lista plana de ítems en cuatro contenedores para renderizar cada columna por separado
+    $sprint = $sprintsController->get_sprint($sprint_id);
+    $items = $retroController->get_retros_by_sprint($sprint_id);
+    $sprint_anterior = $sprintsController->get_previous_sprint($sprint_id);
+    $acciones_anteriores = [];
+
+    if ($sprint_anterior !== null && !empty($_GET['cargar_anteriores'])) {
+        $acciones_anteriores = $retroController->get_acciones_by_sprint($sprint_anterior->get_id());
+    }
+} catch (Exception $ex) {
+    header("Location: inicio.php?error=1");
+    exit;
+}
+
 $grupos = ['logro' => [], 'impedimento' => [], 'accion' => [], 'otros' => []];
 foreach ($items as $item) {
-    if (in_array($item['categoria'], ['logro', 'impedimento', 'accion'], true)) {
-        $grupos[$item['categoria']][] = $item;
+    $cat = $item->get_categoria();
+    if (in_array($cat, ['logro', 'impedimento', 'accion'], true)) {
+        $grupos[$cat][] = $item;
     } else {
-        $grupos['otros'][] = $item;   // concatena 
+        $grupos['otros'][] = $item;
     }
 }
 
@@ -37,30 +64,27 @@ function tarjeta_item($item, $sprint_id)
 {
 ?>
     <article class="item">
-        <!-- Escapa el contenido primero y luego convierte saltos de línea en etiquetas <br> -->
-        <p class="item__texto"><?= nl2br(e($item['descripcion'])) ?></p>
+        <p class="item__texto"><?= nl2br(e($item->get_descripcion())) ?></p>
 
-        <!-- Muestra estado de cumplimiento y fecha límite únicamente si el ítem es de tipo acción -->
-        <?php if ($item['categoria'] === 'accion') : ?>
+        <?php if ($item->get_categoria() === 'accion') : ?>
             <p class="item__meta">
-                <?php if ($item['cumplida'] === null) : ?>
+                <?php if ($item->get_cumplida() === null) : ?>
                     <span class="insignia insignia--pendiente">Pendiente</span>
-                <?php elseif ($item['cumplida']) : ?>
+                <?php elseif ($item->get_cumplida()) : ?>
                     <span class="insignia insignia--ok">Cumplida</span>
                 <?php else : ?>
                     <span class="insignia insignia--no">No cumplida</span>
                 <?php endif; ?>
-                <?php if ($item['fecha_revision']) : ?>
-                    Revisión: <?= e($item['fecha_revision']) ?>
+                <?php if ($item->get_fecha_revision()) : ?>
+                    Revisión: <?= e($item->get_fecha_revision()) ?>
                 <?php endif; ?>
             </p>
         <?php endif; ?>
 
         <div class="item__botones">
-            <a class="btn btn--secundario btn--chico" href="item_form.php?id=<?= e($item['id']) ?>&amp;sprint_id=<?= e($sprint_id) ?>">Editar</a>
-            <!-- Usa un formulario POST independiente para evitar borrados accidentales mediante enlaces GET -->
+            <a class="btn btn--secundario btn--chico" href="item_form.php?id=<?= e($item->get_id()) ?>&amp;sprint_id=<?= e($sprint_id) ?>">Editar</a>
             <form class="en-linea" method="post" action="operaciones/borrar_item.php">
-                <input type="hidden" name="id" value="<?= e($item['id']) ?>">
+                <input type="hidden" name="id" value="<?= e($item->get_id()) ?>">
                 <input type="hidden" name="sprint_id" value="<?= e($sprint_id) ?>">
                 <button type="submit" class="btn btn--peligro btn--chico">Eliminar</button>
             </form>
@@ -75,7 +99,7 @@ function tarjeta_item($item, $sprint_id)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retrospectiva · <?= e($sprint['nombre']) ?></title>
+    <title>Retrospectiva · <?= e($sprint->get_nombre()) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../public/css/estilos.css">
@@ -97,8 +121,15 @@ function tarjeta_item($item, $sprint_id)
     <main class="contenedor">
 
         <div class="encabezado-pagina">
-            <h2>Retrospectiva: <?= e($sprint['nombre']) ?></h2>
-            <a class="btn btn--secundario" href="inicio.php">Volver a sprints</a>
+            <h2>Retrospectiva: <?= e($sprint->get_nombre()) ?></h2>
+            <div class="item__botones">
+                <?php if ($sprint_anterior !== null) : ?>
+                    <a class="btn btn--primario" href="retrospectiva.php?sprint_id=<?= e($sprint_id) ?>&amp;cargar_anteriores=1">
+                        Cargar acciones de <?= e($sprint_anterior->get_nombre()) ?>
+                    </a>
+                <?php endif; ?>
+                <a class="btn btn--secundario" href="inicio.php">Volver a sprints</a>
+            </div>
         </div>
 
         <?php if (!empty($_GET['ok'])) : ?>
@@ -106,6 +137,49 @@ function tarjeta_item($item, $sprint_id)
         <?php endif; ?>
         <?php if (!empty($_GET['error'])) : ?>
             <p class="alerta alerta--error">No se pudo completar la operación.</p>
+        <?php endif; ?>
+
+        <?php if ($sprint_anterior !== null && !empty($_GET['cargar_anteriores'])) : ?>
+            <div class="tarjeta tarjeta--accion">
+                <div class="tarjeta__encabezado">
+                    <h3>Seguimiento de Acciones · <?= e($sprint_anterior->get_nombre()) ?></h3>
+                    <a class="btn btn--secundario btn--chico" href="retrospectiva.php?sprint_id=<?= e($sprint_id) ?>">Ocultar</a>
+                </div>
+                <?php if (empty($acciones_anteriores)) : ?>
+                    <p class="vacio">El sprint anterior no tiene acciones registradas.</p>
+                <?php else : ?>
+                    <?php foreach ($acciones_anteriores as $accion_ant) : ?>
+                        <article class="item">
+                            <p class="item__texto"><?= nl2br(e($accion_ant->get_descripcion())) ?></p>
+                            <p class="item__meta">
+                                Estado actual:
+                                <?php if ($accion_ant->get_cumplida() === null) : ?>
+                                    <span class="insignia insignia--pendiente">Pendiente</span>
+                                <?php elseif ($accion_ant->get_cumplida()) : ?>
+                                    <span class="insignia insignia--ok">Cumplida</span>
+                                <?php else : ?>
+                                    <span class="insignia insignia--no">No cumplida</span>
+                                <?php endif; ?>
+                                <?php if ($accion_ant->get_fecha_revision()) : ?>
+                                    · Revisada el: <?= e($accion_ant->get_fecha_revision()) ?>
+                                <?php endif; ?>
+                            </p>
+                            <form class="en-linea" method="post" action="operaciones/evaluar_accion.php">
+                                <input type="hidden" name="id" value="<?= e($accion_ant->get_id()) ?>">
+                                <input type="hidden" name="sprint_id" value="<?= e($sprint_id) ?>">
+                                <input type="hidden" name="cumplida" value="1">
+                                <button type="submit" class="btn btn--primario btn--chico">Marcar Cumplida</button>
+                            </form>
+                            <form class="en-linea" method="post" action="operaciones/evaluar_accion.php">
+                                <input type="hidden" name="id" value="<?= e($accion_ant->get_id()) ?>">
+                                <input type="hidden" name="sprint_id" value="<?= e($sprint_id) ?>">
+                                <input type="hidden" name="cumplida" value="0">
+                                <button type="submit" class="btn btn--peligro btn--chico">Marcar No Cumplida</button>
+                            </form>
+                        </article>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         <?php endif; ?>
 
         <div class="columnas">
