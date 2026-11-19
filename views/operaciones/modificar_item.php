@@ -1,4 +1,18 @@
 <?php
+require_once "../../models/database/registro_db_interface.php";
+require_once "../../models/database/registro_db.php";
+require_once "../../models/entities/retro_items.php";
+require_once "../../models/mappers/retro_mappers.php";
+require_once "../../models/repositories/sprints_repository/retro_repository_interface.php";
+require_once "../../models/repositories/sprints_repository/retro_repository.php";
+require_once "../../models/config/models_config.php";
+require_once "../../controllers/mappers/retro_mapper_controller.php";
+require_once "../../controllers/retro_items/retro_controller_interface.php";
+require_once "../../controllers/retro_items/retro_controller.php";
+require_once "../../controllers/config/controllers_config.php";
+
+use app\controllers\config\ControllersConfig;
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: ../inicio.php");
     exit;
@@ -17,22 +31,22 @@ if ($id <= 0 || $sprint_id <= 0) {
     header("Location: ../inicio.php?error=1");
     exit;
 }
-
 // Verifica estrictamente la categoría contra la lista  y exige descripción no vacía, conservando el ID al volver
 if (!in_array($categoria, $categorias_validas, true) || $descripcion === '') {
-    header("Location: ../item_form.php?id=" . $id . "&error=datos");
+    header("Location: ../item_form.php?id=" . $id . "&sprint_id=" . $sprint_id . "&error=datos");
     exit;
 }
-// Valida que las fechas sean en un formato dd/mm/año
+
 if ($fecha_revision !== '') {
     $fecha = DateTime::createFromFormat('Y-m-d', $fecha_revision);
     if (!$fecha || $fecha->format('Y-m-d') !== $fecha_revision) {
-        header("Location: ../item_form.php?id=" . $id . "&error=datos");
+        header("Location: ../item_form.php?id=" . $id . "&sprint_id=" . $sprint_id . "&error=datos");
         exit;
     }
 }
 
-$ok = true;
+$controller = ControllersConfig::get_retro_controller();
+$ok = $controller->update_retro($_POST);
 
 header("Location: ../retrospectiva.php?sprint_id=" . $sprint_id . ($ok ? "&ok=1" : "&error=1"));
 exit;
