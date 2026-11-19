@@ -1,7 +1,7 @@
 <?php
 namespace app\models\entities;
 
-class sprint
+class Sprint
 {
     private int $id;
     private string $nombre;
