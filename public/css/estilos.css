@@ -22,6 +22,9 @@
     --lila-intenso: #6E73C4;
     --borde: #D8E0F8;
     --peligro: #E14D5C;
+
+    --azul: #52577A;
+
 }
 
 body {
@@ -91,7 +94,13 @@ nav>ul {
     justify-content: center;
     flex-wrap: wrap;
     gap: 12px;
-    background-color: var(--blanco);
+
+    background: linear-gradient(90deg,
+            var(--azul) 0%,
+            #a8c1f7 20%,
+            #a8c1f7 80%,
+            var(--azul) 100%);
+
     border-bottom: 1px solid var(--borde);
     box-shadow: 0 2px 10px rgba(147, 151, 217, 0.12);
 }
