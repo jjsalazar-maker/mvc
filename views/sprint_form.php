@@ -4,7 +4,6 @@ function e($valor)
     return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
 }
 
-// Por defecto: modo CREAR (campos vacíos)
 $titulo = "Nuevo sprint";
 $action = "operaciones/registrar_sprint.php";
 $id = 0;
@@ -12,13 +11,12 @@ $nombre = "";
 $fecha_inicio = "";
 $fecha_fin = "";
 
-// Si la URL trae ?id=..., entonces es modo EDITAR
+// Si se recibe un identificador por GET, conmuta el destino a edición y precarga los campos
 if (!empty($_GET['id'])) {
     $id = (int)$_GET['id'];
     $titulo = "Editar sprint";
     $action = "operaciones/modificar_sprint.php";
 
-    // DATOS DE PRUEBA: luego los pide el controller con get_sprint($id)
     $nombre = "Sprint " . $id;
     $fecha_inicio = "2026-11-01";
     $fecha_fin = "2026-11-15";
@@ -42,6 +40,8 @@ if (!empty($_GET['id'])) {
             <h1><?= e($titulo) ?></h1>
             <a class="btn btn--secundario" href="inicio.php">Volver</a>
         </div>
+
+        <!-- Selecciona el mensaje de alerta específico según el código de error recibido por URL -->
         <?php if (!empty($_GET['error'])) : ?>
             <p class="alerta alerta--error">
                 <?= $_GET['error'] === 'fechas'
@@ -50,6 +50,7 @@ if (!empty($_GET['id'])) {
             </p>
         <?php endif; ?>
 
+        <!-- Envia el ID oculto (0 en creación, >0 en edición) junto con los datos del sprint -->
         <form class="formulario" method="post" action="<?= e($action) ?>">
             <input type="hidden" name="id" value="<?= e($id) ?>">
 

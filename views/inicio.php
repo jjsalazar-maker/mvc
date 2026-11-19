@@ -69,8 +69,10 @@
                 </tbody>
             </table>
         <?php endif; ?>
-
     </main>
+    <footer>
+        <p>Grupo 1</p>
+    </footer>
 </body>
 
 </html>

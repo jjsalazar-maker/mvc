@@ -53,7 +53,7 @@ section~section {
     margin-top: 25px;
 }
 
-/* ---------- Estructura ---------- */
+
 
 header,
 footer {
@@ -208,6 +208,7 @@ main.contenedor {
 
 .tabla {
     width: 100%;
+    /* Fusiona los bordes de celdas adyacentes para evitar líneas dobles */
     border-collapse: collapse;
     background: var(--superficie-2);
     border: 2px solid var(--azul);
@@ -299,4 +300,134 @@ main.contenedor {
     background: #2a1212;
     border-color: #dc2626;
     color: #fca5a5;
+}
+
+.camp__ayuda {
+    font-weight: 400;
+    color: var(--texto-suave);
+}
+
+/* ---------- Retrospectiva ---------- */
+
+.subtitulo {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--texto-suave);
+}
+
+
+.columnas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: start;
+}
+
+.tarjeta {
+    padding: 16px;
+    background: var(--superficie-2);
+    border: 1px solid var(--borde);
+    border-top: 4px solid var(--primario);
+    border-radius: 10px;
+}
+
+
+.tarjeta--logro {
+    border-top-color: #16a34a;
+}
+
+.tarjeta--impedimento {
+    border-top-color: #d97706;
+}
+
+.tarjeta--accion {
+    border-top-color: #3b82f6;
+}
+
+.tarjeta--otros {
+    border-top-color: #6b7280;
+}
+
+.tarjeta__encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.tarjeta h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.item {
+    margin-bottom: 10px;
+    padding: 12px;
+    background: #111111;
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+}
+
+
+.tarjeta--logro .item {
+    background: #0f2a1a;
+}
+
+.tarjeta--impedimento .item {
+    background: #2a2110;
+}
+
+.tarjeta--accion .item {
+    background: #101c33;
+}
+
+/* Fuerza el salto de línea en palabras o URLs largas para evitar desbordamientos horizontales */
+.item__texto {
+    margin-bottom: 8px;
+    overflow-wrap: anywhere;
+}
+
+.item__meta {
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: var(--texto-suave);
+}
+
+.item__botones {
+    display: flex;
+    gap: 6px;
+}
+
+.insignia {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.insignia--ok {
+    background: #14532d;
+    color: #bbf7d0;
+}
+
+.insignia--no {
+    background: #7f1d1d;
+    color: #fecaca;
+}
+
+.insignia--pendiente {
+    background: #374151;
+    color: #e5e7eb;
+}
+
+/* Apila las 3 columnas en una sola cuando el ancho de pantalla es menor o igual a 800px */
+@media (max-width: 800px) {
+    .columnas {
+        grid-template-columns: 1fr;
+    }
 }
