@@ -8,9 +8,9 @@ use app\models\repositories\sprints_repository\SprintRepositoryInterface;
 
 class SprintsController implements SprintsControllerInterface
 {
-    private SprintRespositoryInterface $sprint_model;
+    private SprintRepositoryInterface $sprint_model;
 
-    public function __construct(SprintRespositoryInterface $sprint_model)
+    public function __construct(SprintRepositoryInterface $sprint_model)
     {
         $this->sprint_model = $sprint_model;
     }

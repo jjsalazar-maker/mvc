@@ -2,21 +2,21 @@
 
 namespace app\controllers\config;
 
-use app\controllers\sessions\SessionsController;
-use app\controllers\sessions\SessionsControllerInterface;
-use app\controllers\users\UsersController;
-use app\controllers\users\UsersControllerInterface;
+use app\controllers\retro_items\RetroController;
+use app\controllers\retro_items\RetroControllerInterface;
+use app\controllers\sprints\SprintsController;
+use app\controllers\sprints\SprintsControllerInterface;
 use app\models\config\ModelsConfig;
 
 class ControllersConfig
 {
-    public static function get_sessions_controller(): SessionsControllerInterface
+    public static function get_sprints_controller(): SprintsControllerInterface
     {
-        return new SessionsController(ModelsConfig::get_users_repository());
+        return new SprintsController(ModelsConfig::get_sprints_repository());
     }
 
-    public static function get_users_controller(): UsersControllerInterface
+    public static function get_retro_controller(): RetroControllerInterface
     {
-        return new UsersController(ModelsConfig::get_users_repository());
+        return new RetroController(ModelsConfig::get_retro_repository());
     }
 }
