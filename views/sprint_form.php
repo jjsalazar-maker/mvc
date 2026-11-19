@@ -1,4 +1,18 @@
 <?php
+require_once "../models/database/registro_db_interface.php";
+require_once "../models/database/registro_db.php";
+require_once "../models/entities/sprint.php";
+require_once "../models/mappers/sprint_mappers.php";
+require_once "../models/repositories/sprints_repository/sprint_repository_interface.php";
+require_once "../models/repositories/sprints_repository/sprint_repository.php";
+require_once "../models/config/models_config.php";
+require_once "../controllers/mappers/sprints_mapper_controller.php";
+require_once "../controllers/sprints/sprints_controller_interface.php";
+require_once "../controllers/sprints/sprints_controller.php";
+require_once "../controllers/config/controllers_config.php";
+
+use app\controllers\config\ControllersConfig;
+
 function e($valor)
 {
     return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
@@ -17,12 +31,18 @@ if (!empty($_GET['id'])) {
     $titulo = "Editar sprint";
     $action = "operaciones/modificar_sprint.php";
 
-    $nombre = "Sprint " . $id;
-    $fecha_inicio = "2026-11-01";
-    $fecha_fin = "2026-11-15";
+    try {
+        $controller = ControllersConfig::get_sprints_controller();
+        $sprint = $controller->get_sprint($id);
+        $nombre = $sprint->get_nombre();
+        $fecha_inicio = $sprint->get_fecha_inicio();
+        $fecha_fin = $sprint->get_fecha_fin();
+    } catch (Exception $ex) {
+        header("Location: inicio.php?error=1");
+        exit;
+    }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -40,8 +60,6 @@ if (!empty($_GET['id'])) {
             <h1><?= e($titulo) ?></h1>
             <a class="btn btn--secundario" href="inicio.php">Volver</a>
         </div>
-
-        <!-- Selecciona el mensaje de alerta específico según el código de error recibido por URL -->
         <?php if (!empty($_GET['error'])) : ?>
             <p class="alerta alerta--error">
                 <?= $_GET['error'] === 'fechas'
@@ -50,7 +68,6 @@ if (!empty($_GET['id'])) {
             </p>
         <?php endif; ?>
 
-        <!-- Envia el ID oculto (0 en creación, >0 en edición) junto con los datos del sprint -->
         <form class="formulario" method="post" action="<?= e($action) ?>">
             <input type="hidden" name="id" value="<?= e($id) ?>">
 

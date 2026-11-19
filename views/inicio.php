@@ -1,3 +1,26 @@
+<?php
+require_once "../models/database/registro_db_interface.php";
+require_once "../models/database/registro_db.php";
+require_once "../models/entities/sprint.php";
+require_once "../models/mappers/sprint_mappers.php";
+require_once "../models/repositories/sprints_repository/sprint_repository_interface.php";
+require_once "../models/repositories/sprints_repository/sprint_repository.php";
+require_once "../models/config/models_config.php";
+require_once "../controllers/mappers/sprints_mapper_controller.php";
+require_once "../controllers/sprints/sprints_controller_interface.php";
+require_once "../controllers/sprints/sprints_controller.php";
+require_once "../controllers/config/controllers_config.php";
+
+use app\controllers\config\ControllersConfig;
+
+function e($valor)
+{
+    return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
+}
+
+$controller = ControllersConfig::get_sprints_controller();
+$sprints = $controller->get_sprints_all();
+?>
 <!DOCTYPE html>
 <html lang="es">
 
@@ -51,16 +74,16 @@
                 <tbody>
                     <?php foreach ($sprints as $sprint) : ?>
                         <tr>
-                            <td><?= e($sprint['id']) ?></td>
-                            <td><?= e($sprint['nombre']) ?></td>
-                            <td><?= e($sprint['fecha_inicio']) ?></td>
-                            <td><?= e($sprint['fecha_fin']) ?></td>
+                            <td><?= e($sprint->get_id()) ?></td>
+                            <td><?= e($sprint->get_nombre()) ?></td>
+                            <td><?= e($sprint->get_fecha_inicio()) ?></td>
+                            <td><?= e($sprint->get_fecha_fin()) ?></td>
                             <td>
-                                <a class="btn btn--secundario btn--chico" href="retrospectiva.php?sprint_id=<?= e($sprint['id']) ?>">Ver retrospectiva</a>
-                                <a class="btn btn--secundario btn--chico" href="sprint_form.php?id=<?= e($sprint['id']) ?>">Editar</a>
+                                <a class="btn btn--secundario btn--chico" href="retrospectiva.php?sprint_id=<?= e($sprint->get_id()) ?>">Ver retrospectiva</a>
+                                <a class="btn btn--secundario btn--chico" href="sprint_form.php?id=<?= e($sprint->get_id()) ?>">Editar</a>
 
                                 <form class="en-linea" method="post" action="operaciones/borrar_sprint.php">
-                                    <input type="hidden" name="id" value="<?= e($sprint['id']) ?>">
+                                    <input type="hidden" name="id" value="<?= e($sprint->get_id()) ?>">
                                     <button type="submit" class="btn btn--peligro btn--chico">Eliminar</button>
                                 </form>
                             </td>
